@@ -1,0 +1,33 @@
+<div>
+  <h1>User Register</h1>
+
+  <div>
+    <div>
+      <form action="/api/jwt/register" method="post">
+        <div>
+          <label for="first_name">First Name:</label>
+          <input type="text" name="first_name" id="first_name" required />
+        </div>
+        <div>
+          <label for="last_name">Last Name:</label>
+          <input type="text" name="last_name" id="last_name" required />
+        </div>
+        <div>
+          <label for="email">Email:</label>
+          <input type="email" name="email" id="email" required />
+        </div>
+        <div>
+          <label for="age">Age:</label>
+          <input type="number" name="age" id="age" min="1" max="99" required />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" required />
+        </div>
+        <div>
+          <button type="submit">Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<div>
+  <h1>User Login</h1>
+
+  <div>
+    <div>
+      <form action="/api/jwt/login" method="post" id="login">
+        <div>
+          <label for="email">Email:</label>
+          <input type="email" name="email" id="email" required />
+        </div>
+        <div>
+          <label for="password">Password:</label>
+          <input type="password" name="password" id="password" required />
+        </div>
+        <div>
+          <button type="submit">Login</button>
+        </div>
+      </form>
+      <hr />
+      <div>
+        <a href="/api/jwt/github">Login with github</a>
+      </div>
+      <hr />
+      <div class="text-center">
+        <h5>
+          If you do not have an account
+          <a href="/api/jwt/register">Register</a>
+        </h5>
+      </div>
+      <hr />
+    </div>
+  </div>
+</div>

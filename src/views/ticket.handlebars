@@ -1,0 +1,77 @@
+<div>
+  <div>
+    <div>
+
+      <div>
+        <h5>User: {{ticket.purchaser}}</h5>
+        <h4>Thanks for your order</h4>
+        <h6>Purchase Summary</h6>
+        <div>
+          <hr />
+        </div>
+
+        <div>
+          <span>Purchase Code</span>
+          <span>{{ticket.code}}</span>
+        </div>
+
+        <div>
+          <span>Date</span>
+          <span>{{formatDate ticket.purchase_datetime}}</span>
+        </div>
+        <hr />
+        <h6>Purchased products</h6>
+
+        {{#each ticket.products}}
+          <div>
+            <div>
+              <span>{{this.product.title}}</span>
+            </div>
+            <div>
+              <span>quantity: {{this.quantity}}</span>
+            </div>
+            <div>
+              <span>${{this.product.price}} C/U</span>
+            </div>
+          </div>
+        {{/each}}
+        <hr />
+        <hr />
+        <div>
+          <span>Total</span>
+          <span>${{ticket.amount}}</span>
+        </div>
+
+        <div>
+          <button id="ordenConfirm">Track your order</button>
+        </div>
+
+      </div>
+
+      {{#if existNotPurchased}}
+        <div>
+          <h4>Products not included in the purchase due to lack of stock</h4>
+          {{#each productsNotPurchased.products}}
+            <div>
+              <div>
+                <span>{{this.product.title}}</span>
+              </div>
+              <div>
+                <span>quantity: {{this.quantity}}</span>
+              </div>
+              <div>
+                <span>${{this.product.price}} C/U</span>
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      {{/if}}
+
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById("ordenConfirm").addEventListener("click", () => {
+  window.location.href = `/products`; })
+</script>

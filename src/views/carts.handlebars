@@ -1,0 +1,72 @@
+<nav>
+  <div>
+    <a href="/products">Products</a>
+  </div>
+</nav>
+
+{{#if emptyCart}}
+  <div>
+    <h2>{{emptyCart}}</h2>
+  </div>
+{{else}}
+  <div id="cartBody">
+    <div>
+      <div>
+
+        <div>
+          <h3>Shopping Cart</h3>
+          <div>
+            <p><span>Sort by:</span>
+              <a href="#!">price
+                <i></i></a>
+            </p>
+          </div>
+        </div>
+        {{#each carts}}
+          <div style="position: relative;">
+            <button
+              style="position: absolute; top:0; right:0"
+              onclick="deleteProduct(`{{this.product._id}}`)"
+            >X</button>
+            <div>
+              <div>
+                <div>
+                  <img
+                    src="/img/{{this.product.thumbnails.[0]}}"
+                    alt="{{this.product.title}}"
+                  />
+                </div>
+                <div>
+                  <p>{{this.product.title}}</p>
+                  <p><span>Category:
+                    </span>{{this.product.category}}</p>
+                </div>
+                <div>
+
+                  <label>Quantity</label>
+                  <input type="number" value="{{this.quantity}}" readonly />
+                </div>
+                <div>
+                  <h5>${{this.product.price}}</h5>
+                </div>
+                <div>
+                  <a href="#!"><i></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+        <div>
+          <div>
+            <button type="button" onclick="purchaseProducts()">Buy Now</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+{{/if}}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/products.js"></script>

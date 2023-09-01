@@ -1,0 +1,73 @@
+<nav>
+  <div>
+    {{#if onlyUser}}
+    <a href="/products/carts/{{user.cart}}">Cart</a>
+    {{/if}}
+    <a href="/products">Products</a>
+
+    {{#if userAdmin}}
+    <button type="button" data-bs-toggle="collapse" data-bs-target="#navbarS"
+      aria-controls="navbarS" aria-expanded="false" aria-label="Toggle navigation">
+      <span></span>
+    </button>
+    <div id="navbarS">
+      <ul>
+        <li>
+          <a
+            href="/products/realTimeProducts">RealTimeProducts</a>
+        </li>
+      </ul>
+      {{/if}}
+
+    </div>
+  </div>
+</nav>
+
+<div>
+  <div>
+    <div>
+      <div style="border-radius: 15px;">
+        <div data-mdb-ripple-color="light">
+          <img src="/img/{{product.thumbnails.[0]}}" style="border-top-left-radius: 15px;
+              border-top-right-radius: 15px;" alt={{product.title}} />
+          <a href="#!">
+            <div></div>
+          </a>
+        </div>
+        <div>
+          <div>
+            <div>
+              <p>{{product.title}}</p>
+              <p>{{product.description}}</p>
+            </div>
+            <div>
+              <div>
+                <i></i>
+                <i></i>
+                <i></i>
+                <i></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr />
+        <div>
+          <div>
+            <p>${{product.price}}</p>
+            <p>{{product.code}}</p>
+          </div>
+        </div>
+        <hr />
+        <div>
+          <div>
+            <button type="button" {{#if userAdmin}}disabled{{/if}}
+              onclick="addProductToCart(`{{product._id}}`, `{{user.cart}}`)">Buy now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/products.js"></script>
