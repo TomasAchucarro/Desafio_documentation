@@ -1,3 +1,5 @@
+import MockingProductsRouter from "./routes/mockingproducts.router.js"
+import errorMiddleware from "./middlewares/error.middlewares.js"
 import messageModel from "./models/messages.model.js";
 import ProductsRouter from "./routes/products.router.js";
 import CartsRouter from "./routes/carts.router.js";
@@ -20,6 +22,9 @@ const run = (io, app) => {
   app.use("/api/jwt", jwtrouter.getRouter());
   const viewsProductsRouter = new ViewsProductsRouter();
   app.use("/products", passportCall("jwt"), viewsProductsRouter.getRouter());
+  const mockingProducts = new MockingProductsRouter();
+  app.use("/mockingproducts", mockingProducts.getRouter());
+  app.use(errorMiddleware);
 
   io.on("connection", async (socket) => {
     socket.on("productList", (data) => {
