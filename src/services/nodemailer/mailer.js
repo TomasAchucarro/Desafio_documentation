@@ -1,9 +1,10 @@
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
 import { NODEMAILER_PASS, NODEMAILER_USER } from "../../config/config.js";
+import { devLogger } from "../../utils/logger.js";
 import moment from "moment";
 
-export const sendEmail = async (userEmail, ticket) => {
+export const sendEmailPurchase = async (userEmail, ticket) => {
   let config = {
     service: "gmail",
     auth: {
@@ -66,7 +67,52 @@ export const sendEmail = async (userEmail, ticket) => {
     const email = await transporter.sendMail(message);
     return email;
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     throw error;
   }
 };
+
+export const sendEmailRegister = async (userEmail) => {
+  let config = {
+    service: "gmail",
+    auth: {
+      user: NODEMAILER_USER,
+      pass: NODEMAILER_PASS,
+    },
+  };
+
+  let transporter = nodemailer.createTransport(config);
+
+  let Mailgenerator = new Mailgen({
+    theme: "default",
+    product: {
+      name: "Ecommerce",
+      link: "http://localhost:8080",
+    },
+  });
+
+  let content = {
+    body: {
+      name: userEmail.full_name,
+      intro: `Welcome! ${userEmail.email}`,
+      outro: `Now you can browse the app to see our products ${userEmail.role}`,
+      signature: false,
+    },
+  };
+
+  let mail = Mailgenerator.generate(content);
+
+  let message = {
+    from: NODEMAILER_USER,
+    to: userEmail.email,
+    subject: "Thanks for subscribing",
+    html: mail,
+  };
+  try {
+    const email = await transporter.sendMail(message);
+    return email;
+  } catch (error) {
+    devLogger.error(error);
+    throw error;
+  }
+}

@@ -4,7 +4,7 @@ import multer from "multer";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import passport from "passport";
-import { PRIVATE_KEY } from "./config/config.js";
+import { PRIVATE_KEY } from "../config/config.js";
 import handlebars from "handlebars";
 import shortid from "shortid";
 import moment from "moment";

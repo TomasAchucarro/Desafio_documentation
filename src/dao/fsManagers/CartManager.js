@@ -1,6 +1,7 @@
 import fs from "fs";
 import { __dirname } from "../../utils.js";
 import { productManager } from "./ProductManager.js";
+import { devLogger } from "../../utils/logger.js";
 
 class CartManager {
   #path;
@@ -11,12 +12,11 @@ class CartManager {
     this.carts = [];
   }
 
-  
   getCarts = async () => {
     try {
       return JSON.parse(await fs.promises.readFile(this.#path, this.#format));
     } catch (error) {
-      console.log("error: archivo no encontrado");
+      devLogger.error("error: archivo no encontrado");
       return [];
     }
   };
@@ -24,11 +24,9 @@ class CartManager {
   getCartsById = async (id) => {
     const carts = await this.getCarts();
     const cart = carts.find((prod) => prod.id === id);
-   
-    return cart ;
+    return cart;
   };
 
- 
   #generateId = async () => {
     const carts = await this.getCarts();
     return carts.length === 0 ? 1 : carts[carts.length - 1].id + 1;
@@ -46,7 +44,6 @@ class CartManager {
 
     await fs.promises.writeFile(this.#path, JSON.stringify(carts, null, "\t"));
 
-    
     this.carts = carts;
 
     return newCart;
@@ -71,7 +68,7 @@ class CartManager {
       (item) => item.product === productId
     );
     if (existingProduct) {
-      existingProduct.quantity++; 
+      existingProduct.quantity++;
     } else {
       const product = {
         product: productId,
@@ -87,7 +84,7 @@ class CartManager {
 
     await fs.promises.writeFile(this.#path, JSON.stringify(carts, null, "\t"));
 
-    return cart; 
+    return cart;
   };
 }
 

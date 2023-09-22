@@ -1,5 +1,5 @@
 import passport from "passport";
-import {passportCallCurrent} from "../utils.js";
+import { passportCallCurrent } from "../utils/utils.js";
 import appRouter from "./router.js";
 import {
   errorPageController,
@@ -17,33 +17,49 @@ import {
 
 export default class JWTRouter extends appRouter {
   init() {
-    this.post("/register", ["PUBLIC"],
+    this.post(
+      "/register",
+      ["PUBLIC"],
       passport.authenticate("register", {
         session: false,
         failureRedirect: "/api/jwt/failRegister",
-      }), userRegisterController);
+      }),
+      userRegisterController
+    );
     this.get("/failRegister", ["PUBLIC"], failRegisterController);
     this.get("/register", ["PUBLIC"], viewRegisterController);
 
-    this.post("/login", ["PUBLIC"],
+    this.post(
+      "/login",
+      ["PUBLIC"],
       passport.authenticate("login", {
         session: false,
         failureRedirect: "/api/jwt/failLogin",
-      }), userLoginController);
+      }),
+      userLoginController
+    );
     this.get("/failLogin", ["PUBLIC"], failLoginController);
     this.get("/login", ["PUBLIC"], viewLoginController);
 
-    this.get("/github", ["PUBLIC"],
+    this.get(
+      "/github",
+      ["PUBLIC"],
       passport.authenticate("github", { scope: ["user:email"] }),
-      loginGithubController);
-    this.get("/githubcallback", ["PUBLIC"],
+      loginGithubController
+    );
+    this.get(
+      "/githubcallback",
+      ["PUBLIC"],
       passport.authenticate("github", { session: false }),
-      githubCallbackController);
+      githubCallbackController
+    );
 
     this.get("/logout", ["PUBLIC"], userLogoutController);
     this.get("/error", ["PUBLIC"], errorPageController);
-    
-    this.get("/current", ["PUBLIC"],
+
+    this.get(
+      "/current",
+      ["PUBLIC"],
       passportCallCurrent("current"),
       userCurrentController
     );

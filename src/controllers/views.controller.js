@@ -1,6 +1,7 @@
 import { ProductService, getProductsService } from "../services/products.service.js";
 import { CartService } from "../services/carts.service.js";
 import { ChatService } from "../services/chats.service.js";
+import { devLogger } from "../utils/logger.js";
 
 export const getProductsViewsController = async (req, res) => {
   try {
@@ -21,7 +22,7 @@ export const getProductsViewsController = async (req, res) => {
     
     res.render("products", { products, user, userAdmin, onlyUser });
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error);
   }
 };
@@ -32,7 +33,7 @@ export const getRealTimeProductsController = async (req, res) => {
     const allProducts = result.payload;
     res.render("realTimeProducts", { allProducts: allProducts });
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error);
   }
 };
@@ -42,7 +43,7 @@ export const getChatController = async (req, res) => {
     const messages = await ChatService.getMessages();
     res.render("chat", { messages });
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error);
   }
 };
@@ -61,8 +62,8 @@ export const getProductsByIdViewController = async (req, res) => {
     }
     res.render("product", { product, user, userAdmin, onlyUser });
   } catch (error) {
-    console.log(error);
-    return res.sendServerError(error);
+    devLogger.error(error);
+    return res.sendServerError(error.message);
   }
 };
 
@@ -81,7 +82,7 @@ export const getCartViewController = async (req, res) => {
 
     res.render("carts", { carts });
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error);
   }
 };

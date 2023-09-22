@@ -1,4 +1,4 @@
-import { uploader } from "../utils.js";
+import { uploader } from "../utils/utils.js";
 import {
   addProductsController,
   deleteProductsController,
@@ -10,7 +10,7 @@ import appRouter from "./router.js";
 
 export default class ProductsRouter extends appRouter {
   init() {
-    this.get("/", ["USER", "ADMIN"], getProductsController);
+    this.get("/", ["PUBLIC"], getProductsController);
 
     this.get("/:pid", ["USER", "ADMIN"], getProductsByIdController);
 

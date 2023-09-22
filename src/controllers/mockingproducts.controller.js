@@ -1,4 +1,5 @@
 import { createProduct, generateProduct } from "../services/fakeProducts.js";
+import { devLogger } from "../utils/logger.js";
 
 const products = [];
 
@@ -9,7 +10,7 @@ export const getProductsController = async (req, res) => {
     }
     res.sendSuccess(products);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };

@@ -1,5 +1,6 @@
 import fs from "fs";
 import { __dirname } from "../../utils.js";
+import { devLogger } from "../../utils/logger.js";
 
 class ProductManager {
   #path;
@@ -17,21 +18,18 @@ class ProductManager {
       (prod) => prod.code === product.code
     );
     if (existingProduct !== undefined) {
-      console.log("Ya existe un producto con el mismo código");
+      devLogger.error("Ya existe un producto con el mismo código");
       return false;
     }
 
     return true;
   };
 
-  
   getProducts = async () => {
     try {
-      return JSON.parse(
-        await fs.promises.readFile(this.#path, this.#format)
-      );
+      return JSON.parse(await fs.promises.readFile(this.#path, this.#format));
     } catch (error) {
-      console.log("error: archivo no encontrado");
+      devLogger.error("error: archivo no encontrado");
       return [];
     }
   };
@@ -41,7 +39,15 @@ class ProductManager {
     return products.length === 0 ? 1 : products[products.length - 1].id + 1;
   };
 
-  addProduct = async (title, description, price, thumbnail, code, category, stock) => {
+  addProduct = async (
+    title,
+    description,
+    price,
+    thumbnail,
+    code,
+    category,
+    stock
+  ) => {
     const products = await this.getProducts();
 
     const newProduct = {
@@ -82,12 +88,9 @@ class ProductManager {
     const index = products.findIndex((prod) => prod.id == id);
 
     if (index !== -1) {
-
       const isValid = await this.#validateProduct(update);
       if (!isValid) {
-        return console.log(
-          "Error al actualizar: actualización inválida"
-        );
+        return devLogger.error("Error al actualizar: actualización inválida");
       }
 
       products[index] = { ...products[index], ...update };
@@ -100,10 +103,10 @@ class ProductManager {
 
       this.products = products;
 
-      return console.log("Producto Actualizado", products[index]);
+      return devLogger.info("Producto Actualizado", products[index]);
     }
 
-    return console.log("Error al actualizar: Producto no encontrado");
+    return devLogger.error("Error al actualizar: Producto no encontrado");
   };
 
   deleteProduct = async (id) => {
@@ -121,9 +124,11 @@ class ProductManager {
       }
       return "No existe el producto con ese ID";
     } catch (err) {
-      console.log(err);
+      devLogger.error(err);
     }
   };
 }
 
-export const productManager = new ProductManager(`${__dirname}/api/products.json`);
+export const productManager = new ProductManager(
+  `${__dirname}/api/products.json`
+);

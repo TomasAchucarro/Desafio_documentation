@@ -1,15 +1,16 @@
-import MockingProductsRouter from "./routes/mockingproducts.router.js"
-import errorMiddleware from "./middlewares/error.middlewares.js"
 import messageModel from "./models/messages.model.js";
 import ProductsRouter from "./routes/products.router.js";
+import MockingProductsRouter from "./routes/mockingproducts.router.js";
 import CartsRouter from "./routes/carts.router.js";
 import ViewsProductsRouter from "./routes/views.router.js";
 import JWTRouter from "./routes/jwt.router.js";
+import LoggerTestRouter from "./routes/loggerTest.router.js";
 import appRouter from "./routes/router.js";
-import { passportCall } from "./utils.js";
+import { passportCall } from "./utils/utils.js";
+import errorMiddleware from "./middlewares/error.middleware.js";
 
 const run = (io, app) => {
-  app.use((req, res, next) => {
+  app.use((req, next) => {
     req.io = io;
     next();
   });
@@ -23,8 +24,12 @@ const run = (io, app) => {
   const viewsProductsRouter = new ViewsProductsRouter();
   app.use("/products", passportCall("jwt"), viewsProductsRouter.getRouter());
   const mockingProducts = new MockingProductsRouter();
+
   app.use("/mockingproducts", mockingProducts.getRouter());
   app.use(errorMiddleware);
+
+  const loggerTestRouter = new LoggerTestRouter();
+  app.use("/loggerTest", loggerTestRouter.getRouter());
 
   io.on("connection", async (socket) => {
     socket.on("productList", (data) => {
@@ -47,7 +52,7 @@ const run = (io, app) => {
 
   class router extends appRouter {
     init() {
-      this.get("/",["PUBLIC"], (req, res) => {
+      this.get("/", ["PUBLIC"], (req, res) => {
         res.render("index", { name: "CoderHouse" });
       });
     }

@@ -1,11 +1,12 @@
 import { ProductService } from "../services/products.service.js";
+import { devLogger } from "../utils/logger.js";
 
 export const getProductsController = async (req, res) => {
   try {
     const result = await ProductService.getAll();
     return res.sendSuccess(result);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };
@@ -17,7 +18,7 @@ export const getProductsByIdController = async (req, res) => {
     if (!result) return res.sendRequestError("The product does not exist");
     res.sendSuccess(result);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     res.sendServerError(error.message);
   }
 };
@@ -25,7 +26,7 @@ export const getProductsByIdController = async (req, res) => {
 export const addProductsController = async (req, res) => {
   try {
     if (!req.file) {
-      console.log("No image");
+      devLogger.info("No image");
     }
     if (!req.body)
       return res.sendUserError("Product no can be created without properties");
@@ -45,7 +46,7 @@ export const addProductsController = async (req, res) => {
     req.app.get("socketio").emit("updatedProducts", products);
     res.createdSuccess(result);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };
@@ -64,7 +65,7 @@ export const updateProductsController = async (req, res) => {
 
     res.sendSuccess(products);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     res.sendServerError(error);
   }
 };
@@ -80,7 +81,7 @@ export const deleteProductsController = async (req, res) => {
 
     res.sendSuccess(products);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };

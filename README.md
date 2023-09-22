@@ -1,4 +1,4 @@
-Agregar en el archivo .env:
+Agregar en el archivo .env con sus atributos correspondientes:
 MONGO_URI
 MONGO_DB_NAME
 SECRET_PASS
@@ -11,3 +11,4 @@ ADMIN_PASSWORD
 JWT_CLIENT_ID
 JWT_CLIENT_SECRET
 PERSISTENCE
+ENVIRONMENT
