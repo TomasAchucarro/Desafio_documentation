@@ -10,7 +10,7 @@ import { passportCall } from "./utils/utils.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 
 const run = (io, app) => {
-  app.use((req, next) => {
+  app.use((req, res, next) => {
     req.io = io;
     next();
   });

@@ -1,5 +1,6 @@
 import { fileURLToPath } from "url";
-import { dirname } from "path";
+import { dirname, join } from "path";
+import path  from "path";
 import multer from "multer";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -10,7 +11,8 @@ import shortid from "shortid";
 import moment from "moment";
 
 const __filename = fileURLToPath(import.meta.url);
-export const __dirname = dirname(__filename);
+export const srcDir = dirname(__filename);
+export const __dirname = join(srcDir, "..");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

@@ -3,7 +3,9 @@ import handlebars from "express-handlebars";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
 import cookieParser from "cookie-parser";
-import { __dirname, dateHelper } from "./utils/utils.js";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUiExpress from "swagger-ui-express";
+import {__dirname, dateHelper } from "./utils/utils.js";
 import {
   PORT,
   SECRET_PASS,
@@ -18,6 +20,20 @@ import { devLogger } from "./utils/logger.js";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const swaggerOptions = {
+  definition: {
+    openapi: "3.1.0",
+    info: {
+      title: "Ecommerce Proyecto Final de Coderhouse",
+      description: "API to manage products and shopping carts",
+      version: "1.0.0",
+    },
+  },
+  apis: ["./docs/**/*.yaml"],
+};
+const specs = swaggerJSDoc(swaggerOptions);
+app.use("/docs", swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
+
 app.use(express.static(`${__dirname}/public`));
 app.engine(
   "handlebars",
@@ -26,6 +42,7 @@ app.engine(
   })
 );
 app.set("views", `${__dirname}/views`);
+console.log(__dirname)
 app.set("view engine", "handlebars");
 
 app.use(cookieParser(SECRET_PASS));
