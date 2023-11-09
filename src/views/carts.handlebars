@@ -1,72 +1,45 @@
-<nav>
-  <div>
-    <a href="/products">Products</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container">
+    <a class="navbar-brand" href="/products">Products</a>
   </div>
 </nav>
 
 {{#if emptyCart}}
-  <div>
+  <div class="container">
     <h2>{{emptyCart}}</h2>
   </div>
 {{else}}
-  <div id="cartBody">
-    <div>
-      <div>
-
-        <div>
+  <div class="container" id="cartBody">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
           <h3>Shopping Cart</h3>
-          <div>
-            <p><span>Sort by:</span>
-              <a href="#!">price
-                <i></i></a>
-            </p>
-          </div>
+          <p><span>Sort by:</span><a href="#!" class="link-primary">price <i class="bi bi-arrow-up"></i></a></p>
         </div>
-        {{#each carts}}
-          <div style="position: relative;">
-            <button
-              style="position: absolute; top:0; right:0"
-              onclick="deleteProduct(`{{this.product._id}}`)"
-            >X</button>
-            <div>
-              <div>
-                <div>
-                  <img
-                    src="/img/{{this.product.thumbnails.[0]}}"
-                    alt="{{this.product.title}}"
-                  />
-                </div>
-                <div>
-                  <p>{{this.product.title}}</p>
-                  <p><span>Category:
-                    </span>{{this.product.category}}</p>
-                </div>
-                <div>
-
-                  <label>Quantity</label>
-                  <input type="number" value="{{this.quantity}}" readonly />
-                </div>
-                <div>
-                  <h5>${{this.product.price}}</h5>
-                </div>
-                <div>
-                  <a href="#!"><i></i></a>
-                </div>
+      </div>
+      {{#each carts}}
+        <div class="col-12 mb-4" style="position: relative;">
+          <button class="btn-close position-absolute top-0 end-0" onclick="deleteProduct(`{{this.product._id}}`)"></button>
+          <div class="row g-0">
+            <div class="col-md-4">
+              <img src="/img/{{this.product.thumbnails.[0]}}" alt="{{this.product.title}}" class="img-fluid" />
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <h5 class="card-title">{{this.product.title}}</h5>
+                <p class="card-text"><span>Category:</span> {{this.product.category}}</p>
+                <label>Quantity</label>
+                <input type="number" value="{{this.quantity}}" readonly class="form-control mb-2" />
+                <h5 class="card-text">${{this.product.price}}</h5>
+                <a href="#!" class="btn btn-primary"><i class="bi bi-cart-plus"></i></a>
               </div>
             </div>
           </div>
-        {{/each}}
-        <div>
-          <div>
-            <button type="button" onclick="purchaseProducts()">Buy Now</button>
-          </div>
         </div>
-
+      {{/each}}
+      <div class="col-12">
+        <button type="button" onclick="purchaseProducts()" class="btn btn-primary">Buy Now</button>
       </div>
     </div>
   </div>
 {{/if}}
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="/js/products.js"></script>

@@ -1,137 +1,98 @@
-<nav>
-  <div>
-    <a href="/products/carts/{{user.cart}}" id="cart">Cart</a>
-
-    <button type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/products">Navbar</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span></span>
+      <span class="navbar-toggler-icon"></span>
     </button>
-    <div id="navbarSupportedContent">
-      <ul>
-        <li>
-          <a href="/api/jwt/current">Profile</a>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/api/jwt/current">Profile</a>
         </li>
         {{#if onlyUser}}
-        <li>
-          <a href="/products/chat">Messages</a>
+        <li class="nav-item">
+          <a class="nav-link" href="/products/chat">Messages</a>
         </li>
         {{/if}}
         {{#if userAdmin}}
-        <li>
-          <a href="/products/realTimeProducts">RealTimeProducts</a>
+        <li class="nav-item">
+          <a class="nav-link" href="/products/realTimeProducts">RealTimeProducts</a>
         </li>
         {{/if}}
       </ul>
-
-
       {{#if user}}
-      <a href="/api/jwt/logout">Logout</a>
+      <a class="btn btn-outline-success" href="/api/jwt/logout">Logout</a>
       {{else}}
-      <a href="/api/jwt/login">Login</a>
+      <a class="btn btn-outline-success" href="/api/jwt/login">Login</a>
       {{/if}}
     </div>
   </div>
 </nav>
 
 {{#if user}}
-<div>
+<div class="container">
   <h1>Welcome {{user.role}}: {{user.first_name}} {{user.last_name}} !</h1>
 </div>
 {{/if}}
 
-<div>
-
-  <div>
-    <a href="http://localhost:8080/products?limit={{products.limit}}&page={{products.page}}&sort=asc"
-      >asc</a>
-    <a href="http://localhost:8080/products?limit={{products.limit}}&page={{products.page}}&sort=desc"
-      >desc</a>
+<div class="container">
+  <div class="d-flex justify-content-center gap-3"> 
+    <a class="btn btn-primary " href="http://localhost:8080/products?limit={{products.limit}}&page={{products.page}}&sort=asc">ascendente</a>
+    <a class="btn btn-primary" href="http://localhost:8080/products?limit={{products.limit}}&page={{products.page}}&sort=desc">descendente</a>
   </div>
 
   <div>
     {{#if products.hasPrevPage}}
-    <a href="http://localhost:8080/products?limit={{products.limit}}&page={{products.prevPage}}"
-     >Prev</a>
+    <a class="btn btn-primary" href="http://localhost:8080/products?limit={{products.limit}}&page={{products.prevPage}}">Prev</a>
     {{/if}}
     {{#if products.hasNextPage}}
-    <a href="http://localhost:8080/products?limit={{products.limit}}&page={{products.nextPage}}"
-      >Next</a>
+    <a class="btn btn-primary" href="http://localhost:8080/products?limit={{products.limit}}&page={{products.nextPage}}">Next</a>
     {{/if}}
   </div>
 
-  <div  style="position: relative;">
-    <form action="/products" method="GET">
-      <div>
-        <div>
-          <label for="category">Category:</label>
-          <select name="category" id="category">
-            <option value="">All</option>
-            <option value="lacteos">Lacteos</option>
-            <option value="aceites">Aceites</option>
-            <option value="granja">Granja</option>
-            <option value="productos secos">Productos Secos</option>
-          </select>
-        </div>
-        <div>
-          <label for="stock">Stock:</label>
-          <input type="number" name="stock" id="stock" min="0" value="{{products.stock}}">
-        </div>
-        <div>
-          <label for="limit">Limit:</label>
-          <input type="number" name="limit" id="limit" min="1" max="100" value="{{products.limit}}">
-        </div>
+  <div class="position-relative">
+    <form class="mb-3" action="/products" method="GET">
+      <div class="mb-3">
+        <label for="category" class="form-label">Category:</label>
+        <select class="form-select" name="category" id="category">
+          <option value="">All</option>
+          <option value="lacteos">Lacteos</option>
+          <option value="aceites">Aceites</option>
+          <option value="granja">Granja</option>
+          <option value="productos secos">Productos Secos</option>
+        </select>
       </div>
-      <button type="submit">Apply Filters</button>
+      <div class="mb-3">
+        <label for="stock" class="form-label">Stock:</label>
+        <input type="number" class="form-control" name="stock" id="stock" min="0" value="{{products.stock}}">
+      </div>
+      <div class="mb-3">
+        <label for="limit" class="form-label">Limit:</label>
+        <input type="number" class="form-control" name="limit" id="limit" min="1" max="100" value="{{products.limit}}">
+      </div>
     </form>
-    <div style="position:absolute; bottom:24; left:0">
-      <button id="clearFilters">Clear Filters</button>
+    <div>
+      <button type="submit" class="btn btn-primary">Apply Filters</button>
+      <button id="clearFilters" class="btn btn-secondary">Clear Filters</button>
     </div>
   </div>
 
   <div>
     {{#if userAdmin}}
     {{#each products.payload}}
-    <div>
-      <div>
-        <div>
-          <button onclick="addCart(`{{this._id}}`)" disabled>Add
-            To Cart</button>
-          <div
-            style="width: 35px; height: 35px;">
-            <a href="http://localhost:8080/products/product/{{this._id}}"
-              >Info</a>
-          </div>
-        </div>
-        <div>
-          <img src="/img/{{this.thumbnails.[0]}}"
-            alt="{{this.title}}" />
-        </div>
-        <div>
-          <div>
-            <p><a href="#!">{{this.category}}</a></p>
-            <p><s>${{this.price}}</s></p>
-          </div>
-
-          <div>
-            <h5>{{this.title}}</h5>
-            <h5>${{this.price}}</h5>
-          </div>
-
-          <div>
-            {{#if this.status}}
-            <p>Available: <span>{{this.stock}}</span></p>
-            {{else}}
-            <p>Out of stock</p>
-            {{/if}}
-            <div>
-              <i></i>
-              <i></i>
-              <i></i>
-              <i></i>
-              <i></i>
-            </div>
-          </div>
-        </div>
+    <div class="card" style="width: 18rem;">
+      <img src="/img/{{this.thumbnails.[0]}}" class="card-img-top" alt="{{this.title}}">
+      <div class="card-body">
+        <h5 class="card-title">{{this.title}}</h5>
+        <p class="card-text">${{this.price}}</p>
+        {{#if this.status}}
+        <p class="card-text">Available: <span>{{this.stock}}</span></p>
+        {{else}}
+        <p class="card-text">Out of stock</p>
+        {{/if}}
+        <button onclick="addCart(`{{this._id}}`)" class="btn btn-primary" {{#unless this.status}} disabled {{/unless}}>Add To Cart</button>
+        <a href="http://localhost:8080/products/product/{{this._id}}" class="btn btn-primary">Info</a>
       </div>
     </div>
     {{/each}}
@@ -139,47 +100,18 @@
 
     {{#if onlyUser}}
     {{#each products.payload}}
-    <div>
-      <div>
-        <div>
-          <button onclick="addCart(`{{this._id}}`)">Add To
-            Cart</button>
-          <div
-            style="width: 35px; height: 35px;">
-            <a href="http://localhost:8080/products/product/{{this._id}}"
-              >Info</a>
-          </div>
-        </div>
-        <div>
-          <img src="/img/{{this.thumbnails.[0]}}" 
-            alt="{{this.title}}" />
-        </div>
-        <div>
-          <div>
-            <p><a href="#!">{{this.category}}</a></p>
-            <p><s>${{this.price}}</s></p>
-          </div>
-
-          <div>
-            <h5>{{this.title}}</h5>
-            <h5>${{this.price}}</h5>
-          </div>
-
-          <div>
-            {{#if this.status}}
-            <p>Available: <span>{{this.stock}}</span></p>
-            {{else}}
-            <p>Out of stock</p>
-            {{/if}}
-            <div>
-              <i></i>
-              <i></i>
-              <i></i>
-              <i></i>
-              <i></i>
-            </div>
-          </div>
-        </div>
+    <div class="card" style="width: 18rem;">
+      <img src="/img/{{this.thumbnails.[0]}}" class="card-img-top" alt="{{this.title}}">
+      <div class="card-body">
+        <h5 class="card-title">{{this.title}}</h5>
+        <p class="card-text">${{this.price}}</p>
+        {{#if this.status}}
+        <p class="card-text">Available: <span>{{this.stock}}</span></p>
+        {{else}}
+        <p class="card-text">Out of stock</p>
+        {{/if}}
+        <button onclick="addCart(`{{this._id}}`)" class="btn btn-primary" {{#unless this.status}} disabled {{/unless}}>Add To Cart</button>
+        <a href="http://localhost:8080/products/product/{{this._id}}" class="btn btn-primary">Info</a>
       </div>
     </div>
     {{/each}}
@@ -210,4 +142,10 @@
     height: 100%;
     object-fit: contain;
   }
+
+  .user-profile-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
 </style>

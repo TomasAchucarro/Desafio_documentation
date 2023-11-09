@@ -3,6 +3,23 @@ const socket = io();
 const cartLink = document?.getElementById("cart");
 const hrefValue = cartLink?.getAttribute("href");
 const cart = hrefValue?.match(/\/products\/carts\/(.+)/)[1];
+
+const message = (message, gravity, position, color) => {
+  return Toastify({
+    text: `${message}`,
+    duration: 3000,
+    newWindow: true,
+    close: true,
+    gravity: `${gravity}`,
+    position: `${position}`,
+    stopOnFocus: true,
+    style: {
+      background: `${color}`,
+    },
+    onClick: function () {},
+  }).showToast();
+};
+
 const addCart = async (id) => {
   try {
     const res = await fetch(`/api/carts/${cart}/product/${id}`, {
@@ -11,21 +28,9 @@ const addCart = async (id) => {
     const result = await res.json();
     if (result.status === "error") throw new Error(result.error);
 
-    Toastify({
-      text: "product add to cart successfully",
-      duration: 2000,
-      newWindow: true,
-      close: true,
-      gravity: "top",
-      position: "right",
-      stopOnFocus: true,
-      style: {
-        background: "#008000",
-      },
-      onClick: function () {},
-    }).showToast();
+    message("product add to cart successfully", "top", "right", "#008000");
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 };
 
@@ -37,21 +42,9 @@ const addProductToCart = async (id, prodCart) => {
     const result = await res.json();
     if (result.status === "error") throw new Error(result.error);
 
-    Toastify({
-      text: "product add to cart successfully",
-      duration: 2000,
-      newWindow: true,
-      close: true,
-      gravity: "top",
-      position: "right",
-      stopOnFocus: true,
-      style: {
-        background: "#008000",
-      },
-      onClick: function () {},
-    }).showToast();
+    message("product add to cart successfully", "top", "right", "#008000");
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 };
 
@@ -65,21 +58,10 @@ const deleteProduct = async (id) => {
     if (result.status === "error") throw new Error(result.error);
     else socket.emit("cartList", result);
 
-    Toastify({
-      text: "product delete to cart successfully",
-      duration: 2000,
-      newWindow: true,
-      close: true,
-      gravity: "top",
-      position: "right",
-      stopOnFocus: true,
-      style: {
-        background: "#ff0000",
-      },
-      onClick: function () {},
-    }).showToast();
+    message("product delete to cart successfully", "top", "right", "#ff0000");
+
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 };
 
@@ -89,85 +71,81 @@ const purchaseProducts = async () => {
   )[1];
   try {
     Swal.fire({
-      title: 'Confirm the purchase?',
+      title: "Confirm the purchase?",
       text: "Products out of stock will not be added to the purchase!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, confirm!'
-    }).then((result) => {
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, confirm!",
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setTimeout(() => {
-          window.location.href = `/api/carts/${cartEmpty}/purchase`;
-        }, 500)
+        window.location.href = `/api/payments/createCheckout`;
       }
-    })
+    });
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 };
 
 const cartBody = document.querySelector("#cartBody");
 const generateProductHTML = (prod) => {
-  return `<div style="position: relative;">
-         <button
+  return `<div class="card rounded-3 mb-4" style="position: relative;">
+         <button class="btn btn-danger px-2 py-1 rounded-3" 
          style="position: absolute; top:0; right:0"
          onclick="deleteProduct('${prod.product._id}')"
          >X</button>
-         <div>
-           <div>
-             <div>
-               <img src="/img/${prod.product.thumbnails[0]}" alt="${prod.product.title}"/>
+         <div class="card-body p-4">
+           <div class="row d-flex justify-content-between align-items-center">
+             <div class="col-md-2 col-lg-2 col-xl-2">
+               <img src="/img/${prod.product.thumbnails[0]}" alt="${prod.product.title}" class="img-fluid" />
              </div>
-             <div>
-               <p>${prod.product.title}</p>
-               <p><span>Category:
+             <div class="col-md-3 col-lg-3 col-xl-3">
+               <p class="lead fw-normal mb-2">${prod.product.title}</p>
+               <p><span class="text-muted">Category:
                  </span>${prod.product.category}</p>
              </div>
-             <div>
+             <div class="col-md-3 col-lg-3 col-xl-2 d-flex flex-column text-center">
   
-               <label>Quantity</label>
-               <input type="number" value=${prod.quantity}
+               <label class="fw-bold">Quantity</label>
+               <input type="number" value=${prod.quantity} class="form-control form-control-sm text-center fw-bold"
                  readonly />
              </div>
-             <div>
-               <h5>$${prod.product.price}</h5>
+             <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+               <h5 class="mb-0">$${prod.product.price}</h5>
              </div>
-             <div>
-               <a href="#!"><i></i></a>
+             <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+               <a href="#!" class="text-danger"><i class="fas fa-trash fa-lg"></i></a>
              </div>
            </div>
          </div>
        </div>`;
-}
+};
 
-// Escucha el evento "updatedCarts" emitido por el servidor
 socket.on("updatedCarts", (data) => {
-
   const productsHTML = data.payload.products
-      .map((prod) => generateProductHTML(prod))
-      .join("");
+    .map((prod) => generateProductHTML(prod))
+    .join("");
 
   if (data.payload.products.length > 0) {
     cartBody.innerHTML = `
-    <div id="cartBody">
-    <div>
-      <div>
+    <div class="container h-100 py-5" id="cartBody">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-10">
   
-        <div>
-          <h3>Shopping Cart</h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="fw-normal mb-0 text-black">Shopping Cart</h3>
           <div>
-            <p><span>Sort by:</span>
-              <a href="#!">price
-                <i></i></a>
+            <p class="mb-0"><span class="text-muted">Sort by:</span>
+              <a href="#!" class="text-body">price
+                <i class="fas fa-angle-down mt-1"></i></a>
             </p>
           </div>
         </div>
         ${productsHTML}
-        <div>
-          <div>
-            <button type="button" onclick="purchaseProducts()">Buy Now</button>
+        <div class="card">
+          <div class="card-body text-center">
+            <button type="button" class="btn btn-warning btn-block btn-lg" onclick="purchaseProducts()">Buy Now</button>
           </div>
         </div>
   
@@ -177,8 +155,8 @@ socket.on("updatedCarts", (data) => {
     `;
   } else {
     cartBody.innerHTML = `
-    <div>
-      <h2>Cart Empty</h2>
+    <div class="container h-100 py-5 text-center">
+      <h2 class="p-5">Cart Empty</h2>
     </div>`;
   }
 });

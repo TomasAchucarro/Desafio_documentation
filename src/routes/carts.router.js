@@ -12,20 +12,20 @@ import {
 
 export default class CartsRouter extends appRouter {
   init() {
-    this.post("/", ["USER", "ADMIN"], addCartController);
+    this.post("/", ["USER", "ADMIN", "PREMIUM"], addCartController);
 
-    this.post("/:cid/product/:pid", ["USER"], addProductToCartController);
+    this.post("/:cid/product/:pid", ["USER", "PREMIUM"], addProductToCartController);
 
-    this.get("/:cid", ["USER", "ADMIN"], getCartController);
+    this.get("/:cid", ["USER", "ADMIN", "PREMIUM"], getCartController);
 
-    this.put("/:cid/product/:pid", ["USER", "ADMIN"], updateProductToCartController);
+    this.put("/:cid/product/:pid", ["USER", "ADMIN", "PREMIUM"], updateProductToCartController);
 
-    this.put("/:cid", ["USER", "ADMIN"], updatedCartController);
+    this.put("/:cid", ["USER", "ADMIN", "PREMIUM"], updatedCartController);
 
-    this.delete("/:cid", ["USER", "ADMIN"], deleteCartController);
+    this.delete("/:cid", ["USER", "ADMIN", "PREMIUM"], deleteCartController);
 
-    this.delete("/:cid/product/:pid", ["USER"], deleteProductInCartController);
+    this.delete("/:cid/product/:pid", ["USER", "PREMIUM"], deleteProductInCartController);
 
-    this.get("/:cid/purchase", ["USER"], getPurchaseController);
+    this.get("/:cid/purchase", ["USER", "PREMIUM"], getPurchaseController);
   }
 }

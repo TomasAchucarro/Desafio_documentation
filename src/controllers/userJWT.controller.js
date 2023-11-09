@@ -1,11 +1,20 @@
-import { generateToken } from "../utils/utils.js";
-import { SIGNED_COOKIE_KEY } from "../config/config.js";
+import { createHash, generateToken, isValidPassword } from "../utils/utils.js";
+import { PRIVATE_KEY, SIGNED_COOKIE_KEY } from "../config/config.js";
 import UserDTO from "../dto/users.dto.js";
 import UserEmailDTO from "../dto/userEmail.dto.js";
-import { sendEmailRegister } from "../services/nodemailer/mailer.js";
+import {
+  sendEmailRegister,
+  emailResetPassword,
+} from "../services/nodemailer/mailer.js";
+import { UserService } from "../services/users.service.js";
+import { UserPasswordService } from "../services/usersPass.service.js";
+import jwt from "jsonwebtoken";
+import { linkToken } from "../utils/utils.js";
+import { devLogger } from "../utils/logger.js";
 
 export const userRegisterController = async (req, res) => {
   const userEmail = new UserEmailDTO(req.user);
+  console.log(userEmail)
   await sendEmailRegister(userEmail);
   res.redirect("/api/jwt/login");
 };
@@ -18,6 +27,7 @@ export const failRegisterController = (req, res) => {
 };
 
 export const viewRegisterController = (req, res) => {
+  console.log("first")
   res.render("sessions/register");
 };
 
@@ -43,23 +53,125 @@ export const viewLoginController = (req, res) => {
 export const loginGithubController = async (req, res) => {};
 
 export const githubCallbackController = async (req, res) => {
-  const userEmail = new UserEmailDTO(req.user);
-  await sendEmailRegister(userEmail);
   const access_token = req.authInfo.token;
   res
     .cookie(SIGNED_COOKIE_KEY, access_token, { signed: true })
     .redirect("/products");
 };
 
-export const userLogoutController = (req, res) => {
-  res.clearCookie(SIGNED_COOKIE_KEY).redirect("/api/jwt/login");
+export const userLogoutController = async (req, res) => {
+  try {
+    res.clearCookie(SIGNED_COOKIE_KEY).redirect("/api/jwt/login");
+  } catch (error) {
+    devLogger.error(error);
+    res.render("errors/errorPage", {
+      status: "error",
+      error: "Error during logout",
+    });
+  }
 };
 
 export const errorPageController = (req, res) => {
   res.render("errors/errorPage");
 };
 
-export const userCurrentController = (req, res) => {
-  const user = new UserDTO(req.user);
-  res.render("sessions/current", { user });
+export const errorResetPassController = (req, res) => {
+  res.render("errors/errorResetPass");
+};
+
+export const userCurrentController = async (req, res) => {
+  try {
+    const findUsers = await UserService.find();
+    const allUsers = findUsers.map((user) => new UserDTO(user));
+    const users = allUsers.filter((user) => user.role !== "admin");
+
+    const user = new UserDTO(req.user);
+    const isAdmin = user.role === "admin" ? true : false;
+    const isUser = user.role === "user" ? true : false;
+    const isPremium = user.role === "premium" ? true : false;
+    res.render("sessions/current", { user, users, isUser, isPremium, isAdmin });
+  } catch (error) {
+    devLogger.error(error);
+  }
+};
+
+export const passwordResetController = (req, res) => {
+  res.render("sessions/passwordResetEmail");
+};
+export const passwordResetEmailController = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const userFound = await UserService.findOne({ email: email });
+
+    if (!userFound) {
+      return res.render("errors/errorResetPass", {
+        status: "error",
+        error: "Invalid Email",
+      });
+    }
+    const userEmail = new UserEmailDTO(userFound);
+    const token = linkToken(userEmail);
+    await UserPasswordService.create({ email, token });
+    await emailResetPassword(userEmail, token);
+    res.render("sessions/messageEmail", {
+      status: "success",
+      message: `Email successfully send to ${email} in order to reset password`,
+    });
+  } catch (error) {
+    devLogger.error(error);
+  }
+};
+
+export const changePasswordController = async (req, res) => {
+  const tid = req.params.tid;
+  const tokenId = await UserPasswordService.findOne({ token: tid });
+
+  if (!tokenId) {
+    return res.render("errors/errorResetPass", {
+      status: "error",
+      error: "invalid token | token has expired",
+    });
+  }
+  res.render("sessions/changePassword", { tid });
+};
+
+export const sendNewPasswordController = async (req, res) => {
+  try {
+    const tid = req.params.tid;
+    if (!tid) {
+      return res.render("errors/errorResetPass", {
+        status: "error",
+        error: "invalid token | token has expired",
+      });
+    }
+    const userEmail = jwt.verify(tid, PRIVATE_KEY);
+
+    const { password } = req.body;
+    const userFound = await UserService.findOne({
+      email: userEmail.data.email,
+    });
+    if (!userFound || isValidPassword(userFound, password)) {
+      return res.render("errors/errorChangePass", {
+        status: "error",
+        error: "Error updating password",
+        tid,
+      });
+    }
+    const userUpdated = await UserService.update(userEmail.data._id, {
+      password: createHash(password),
+    });
+    if (!userUpdated) {
+      return res.render("errors/errorChangePass", {
+        status: "error",
+        error: "Error updating password",
+        tid,
+      });
+    }
+    res.render("sessions/messageEmail", {
+      status: "success",
+      message: `Password successfully updated`,
+    });
+  } catch (error) {
+    devLogger.error(error);
+  }
 };

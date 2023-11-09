@@ -4,6 +4,22 @@ const form = document.getElementById("form");
 const productsTable = document.querySelector("#productsTable");
 const tbody = productsTable.querySelector("#tbody");
 
+const message = (message, gravity, position, color) => {
+  return Toastify({
+    text: `${message}`,
+    duration: 3000,
+    newWindow: true,
+    close: true,
+    gravity: `${gravity}`,
+    position: `${position}`,
+    stopOnFocus: true,
+    style: {
+      background: `${color}`,
+    },
+    onClick: function () {},
+  }).showToast();
+};
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -14,37 +30,21 @@ form.addEventListener("submit", async (e) => {
   });
   try {
     if (!res.ok) {
-      throw new Error(result.error);
+      throw new Error(res.error);
     } else {
-      
       const resultProducts = await fetch("/api/products?limit=100");
       const results = await resultProducts.json();
       if (results.status === "error") {
         throw new Error(results.error);
       } else {
-        
         socket.emit("productList", results.payload);
 
-       
-        Toastify({
-          text: "new product added successfully",
-          duration: 2000,
-          newWindow: true,
-          close: true,
-          gravity: "top",
-          position: "right",
-          stopOnFocus: true,
-          style: {
-            background: "#008000",
-          },
-          onClick: function () {},
-        }).showToast();
-        
+        message("new product added successfully", "top", "right", "#008000");
         form.reset();
       }
     }
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 });
 
@@ -57,21 +57,10 @@ const deleteProduct = async (id) => {
     if (result.status === "error") throw new Error(result.error);
     else socket.emit("productList", result.payload);
 
-    Toastify({
-      text: "product removed successfully",
-      duration: 2000,
-      newWindow: true,
-      close: true,
-      gravity: "bottom",
-      position: "right",
-      stopOnFocus: true,
-      style: {
-        background: "#ff0000",
-      },
-      onClick: function () {},
-    }).showToast();
+    message("product removed successfully", "bottom", "right", "#ff0000");
+    
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 };
 
@@ -86,15 +75,15 @@ socket.on("updatedProducts", (products) => {
         <td>${item.code}</td>
         <td>${item.category}</td>
         <td>${item.stock}</td>
-        <td>
-          <button onclick="deleteProduct('${item._id}')" id="btnDelete">Delete</button>
-          <button onclick="updatedProduct('${item._id}')" id="btnUpdate">Update</button>
+        <td class="d-flex justify-content-between">
+          <button class="btn btn-danger mx-1" onclick="deleteProduct('${item._id}')" id="btnDelete">Delete</button>
+          <button class="btn btn-info mx-1" onclick="updatedProduct('${item._id}')" id="btnUpdate">Update</button>
         </td>
         <td id="editForm_${item._id}" style="display: none;">
-          <div>
+          <div class="product-edit-form">
             <label for="editStock">New Stock:</label>
             <input type="number" id="editStock_${item._id}" />
-            <button onclick="updateStock('${item._id}')">Update Stock</button>
+            <button class="btn btn-info" onclick="updateStock('${item._id}')">Update Stock</button>
           </div>
         </td>
       `;

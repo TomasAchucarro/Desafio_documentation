@@ -2,8 +2,8 @@ import passport from "passport";
 import local from "passport-local";
 import GithubStrategy from "passport-github2";
 import jwt from "passport-jwt";
-import { userModel } from "../models/users.model.js";
-import { cartModel } from "../models/carts.model.js";
+import { UserService } from "../services/users.service.js";
+import { CartService } from "../services/carts.service.js";
 import bcrypt from "bcrypt";
 import { isValidPassword, generateToken, createHash } from "../utils/utils.js";
 import {
@@ -14,7 +14,10 @@ import {
   JWT_CLIENT_ID,
   JWT_CLIENT_SECRET,
 } from "./config.js";
+import UserEmailDTO from "../dto/userEmail.dto.js";
+import { sendEmailRegister } from "../services/nodemailer/mailer.js";
 import { devLogger } from "../utils/logger.js";
+import e from "express";
 
 const LocalStrategy = local.Strategy;
 
@@ -37,13 +40,16 @@ const initializePassport = () => {
         usernameField: "email",
       },
       async (req, username, password, done) => {
-        const { first_name, last_name, email, age } = req.body;
+        const { first_name, last_name, email,age, } = req.body;
         try {
-          const user = await userModel.findOne({ email: username });
+          console.log("password",password)
+          console.log("username",username)
+          const user = await UserService.findOne({ email: username });
+          console.log("user",user)
           if (user) {
             return done(null, false);
           }
-          const cartNewUser = await cartModel.create({});
+          const cartNewUser = await CartService.create({});
           const newUser = {
             first_name,
             last_name,
@@ -52,13 +58,15 @@ const initializePassport = () => {
             password: createHash(password),
             cart: cartNewUser._id,
           };
+          console.log("newuser",newUser)
           if (
             newUser.email === ADMIN_EMAIL &&
             bcrypt.compareSync(ADMIN_PASSWORD, newUser.password)
           ) {
             newUser.role = "admin";
           }
-          const result = await userModel.create(newUser);
+          const result = await UserService.create(newUser);
+          console.log(result)
           return done(null, result);
         } catch (error) {
           devLogger.error(error);
@@ -76,10 +84,14 @@ const initializePassport = () => {
       },
       async (username, password, done) => {
         try {
-          const user = await userModel.findOne({ email: username });
+          const user = await UserService.findOne({ email: username });
           if (!user || !isValidPassword(user, password)) {
             return done(null, false);
           }
+          user.last_connection = new Date();
+          await UserService.update(user._id, {
+            last_connection: user.last_connection,
+          });
           return done(null, user);
         } catch (error) {
           devLogger.error(error);
@@ -102,12 +114,16 @@ const initializePassport = () => {
           const userName = profile.displayName || profile.username;
           const userEmail = profile._json.email;
 
-          const existingUser = await userModel.findOne({ email: userEmail });
+          const existingUser = await UserService.findOne({ email: userEmail });
           if (existingUser) {
             const token = generateToken(existingUser);
+            user.last_connection = new Date();
+            await UserService.update(user._id, {
+              last_connection: user.last_connection,
+            });
             return done(null, existingUser, { token });
           }
-          const cartNewUser = await cartModel.create({});
+          const cartNewUser = await CartService.create({});
           const newUser = {
             first_name: userName,
             last_name: " ",
@@ -118,7 +134,9 @@ const initializePassport = () => {
           if (newUser.email === ADMIN_EMAIL) {
             newUser.role = "admin";
           }
-          const result = await userModel.create(newUser);
+          const result = await UserService.create(newUser);
+          const userSendEmail = new UserEmailDTO(result);
+          await sendEmailRegister(userSendEmail);
           const token = generateToken(result);
           return done(null, result, { token });
         } catch (error) {
@@ -159,7 +177,7 @@ const initializePassport = () => {
           if (!user) {
             return done(null, false, { message: "No token provided" });
           }
-          const existingUser = await userModel.findById(user._id).lean().exec();
+          const existingUser = await UserService.findById(user._id);
           if (!existingUser) {
             return done(null, false, {
               message: "There is no user with an active session",
@@ -180,7 +198,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await userModel.findById(id);
+  const user = await UserService.findById(id);
   done(null, user);
 });
 

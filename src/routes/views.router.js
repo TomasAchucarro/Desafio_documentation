@@ -3,16 +3,16 @@ import { getCartViewController, getChatController, getProductsByIdViewController
 
 export default class ViewsProductsRouter extends appRouter {
   init(){
-    this.get("/",["USER", "ADMIN"], getProductsViewsController);
+    this.get("/",["USER", "ADMIN", "PREMIUM"], getProductsViewsController);
 
-    this.get("/realTimeProducts",["ADMIN"], getRealTimeProductsController);
+    this.get("/realTimeProducts",["ADMIN", "PREMIUM"], getRealTimeProductsController);
 
-    this.get("/chat",["USER"], getChatController);
+    this.get("/chat",["USER", "PREMIUM"], getChatController);
 
-    this.get("/product/:pid",["USER", "ADMIN"],
+    this.get("/product/:pid",["USER", "ADMIN", "PREMIUM"],
       getProductsByIdViewController
     );
 
-    this.get("/carts/:cid",["USER", "ADMIN"], getCartViewController);
+    this.get("/carts/:cid",["USER", "ADMIN", "PREMIUM"], getCartViewController);
   }
 }

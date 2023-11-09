@@ -12,7 +12,7 @@ export default class appRouter {
   getRouter() {
     return this.router;
   }
-  init() {}
+  init() {} 
 
   get(path, policies, ...callbacks) {
     this.router.get(
@@ -62,6 +62,8 @@ export default class appRouter {
     res.sendSuccess = (payload) => res.json({ status: "success", payload });
     res.createdSuccess = (payload) =>
       res.status(201).json({ status: "success", payload });
+    res.sendNoContent = (payload) =>
+      res.status(204).json({ status: "success", payload });
     res.sendServerError = (error) =>
       res.status(500).json({ status: "error", error });
     res.sendUserError = (error) =>
@@ -74,7 +76,7 @@ export default class appRouter {
   };
 
   handlePolicies = (policies) => (req, res, next) => {
-    if (policies[0] === "PUBLIC") return next();
+    if (policies[0] === "PUBLIC") return next(); 
     const authHeaders = req.signedCookies[SIGNED_COOKIE_KEY];
     if (!authHeaders)
       return res.status(401).render("errors/errorPage", {

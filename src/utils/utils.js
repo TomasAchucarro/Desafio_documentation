@@ -1,7 +1,5 @@
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import path  from "path";
-import multer from "multer";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import passport from "passport";
@@ -14,16 +12,6 @@ const __filename = fileURLToPath(import.meta.url);
 export const srcDir = dirname(__filename);
 export const __dirname = join(srcDir, "..");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, `${__dirname}/public/img`);
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-export const uploader = multer({ storage });
-
 export const createHash = (password) =>
   bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 export const isValidPassword = (user, password) =>
@@ -31,6 +19,11 @@ export const isValidPassword = (user, password) =>
 
 export const generateToken = (user) => {
   const token = jwt.sign({ user }, PRIVATE_KEY, { expiresIn: "24h" });
+  return token;
+};
+
+export const linkToken = (data) => {
+  const token = jwt.sign({ data }, PRIVATE_KEY, { expiresIn: "1h" });
   return token;
 };
 
@@ -42,7 +35,6 @@ export const passportCall = (strategy) => {
       function (err, user, info) {
         if (err) return next(err);
         if (info && info.name === "TokenExpiredError") {
-          
           return res.status(401).render("errors/errorPage", {
             status: "error",
             error: "Token expired",
@@ -54,6 +46,7 @@ export const passportCall = (strategy) => {
     )(req, res, next);
   };
 };
+
 export const passportCallCurrent = (strategy) => {
   return async (req, res, next) => {
     passport.authenticate(
@@ -62,7 +55,6 @@ export const passportCallCurrent = (strategy) => {
       function (err, user, info) {
         if (err) return next(err);
         if (!user) {
-          
           if (info && info.message === "No token provided") {
             return res
               .status(401)

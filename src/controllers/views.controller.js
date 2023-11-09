@@ -11,16 +11,17 @@ export const getProductsViewsController = async (req, res) => {
       product.stock === 0 ? product.status = false : product.status = true
       await ProductService.update(product._id, { status: product.status });
     }
-
     const user = req.user.user;
     let userAdmin;
     let onlyUser;
+    let userPremium;
     if (user) {
       userAdmin = user?.role === "admin" ? true : false;
-      onlyUser = user?.role === "user" ? true : false;
+      onlyUser = (user?.role === "user" || user?.role === "premium") ? true : false;
+      userPremium = user?.role === "premium" ? true : false;
     }
     
-    res.render("products", { products, user, userAdmin, onlyUser });
+    res.render("products", { products, user, userAdmin, onlyUser, userPremium });
   } catch (error) {
     devLogger.error(error);
     return res.sendServerError(error);
@@ -56,11 +57,13 @@ export const getProductsByIdViewController = async (req, res) => {
     const user = req.user.user;
     let userAdmin;
     let onlyUser;
+    let userPremium;
     if (user) {
       userAdmin = user?.role === "admin" ? true : false;
-      onlyUser = user?.role === "user" ? true : false;
+      onlyUser = (user?.role === "user" || user?.role === "premium") ? true : false;
+      userPremium = user?.role === "premium" ? true : false;
     }
-    res.render("product", { product, user, userAdmin, onlyUser });
+    res.render("product", { product, user, userAdmin, onlyUser, userPremium });
   } catch (error) {
     devLogger.error(error);
     return res.sendServerError(error.message);
@@ -79,7 +82,7 @@ export const getCartViewController = async (req, res) => {
     }
     const carts = cart.products;
     req.app.get("socketio").emit("updatedCarts", carts);
-
+    
     res.render("carts", { carts });
   } catch (error) {
     devLogger.error(error);

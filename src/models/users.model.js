@@ -9,7 +9,19 @@ const userSchema = new mongoose.Schema({
   age: { type: Number, required: false },
   password: { type: String, required: true },
   cart: { type: mongoose.Schema.Types.ObjectId, ref: "carts" },
-  role: {type: String, default: "user"},
+  role: { type: String, enum: ["user", "premium", "admin"], default: "user" },
+  documents: {
+    type: [
+      {
+        name: { type: String },
+        reference: { type: String },
+      },
+    ],
+    default: [],
+  },
+  status: { type: Boolean, default: false },
+  profilePicture: { type: String },
+  last_connection: { type: Date },
 });
 
 mongoose.set("strictQuery", false);

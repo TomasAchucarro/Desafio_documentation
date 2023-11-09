@@ -1,5 +1,5 @@
 import CartRepository from "../repositories/cart.repository.js";
-import { Cart } from "../dao/factory/carts.factory.js";
+import { Cart } from "../dao/factory/factory.js";
 import { ProductService } from "./products.service.js";
 import { generateUniqueCode } from "../utils/utils.js";
 import { sendEmailPurchase } from "./nodemailer/mailer.js";
@@ -16,7 +16,7 @@ const calculateTotalAmount = async (cart) => {
       if (!product) {
         throw new Error(`Product not found for id: ${item.product}`);
       }
-      totalAmount += product.price * item.quantity;
+        totalAmount += product.price * item.quantity;
     }
   } catch (error) {
     devLogger.error(error.message);
@@ -55,7 +55,7 @@ export const purchaseService = async (req, res) => {
       productsToPurchase.push(productInfo);
     }
   }
-
+  
   if (productsToPurchase.length > 0) {
     const newTicket = {
       code: generateUniqueCode(),
@@ -82,16 +82,11 @@ export const purchaseService = async (req, res) => {
 
     const ticket = await CartService.getPurchase(saveTicket._id);
     const productsNotPurchased = await CartService.getCart(cid);
-    const existNotPurchased =
-      productsNotPurchased.products.length !== 0 ? true : false;
-
+    const existNotPurchased = productsNotPurchased.products.length !== 0 ? true : false
+    
     await sendEmailPurchase(userEmail, ticket);
 
-    return res.render("ticket", {
-      ticket,
-      productsNotPurchased,
-      existNotPurchased,
-    });
+    return res.render("ticket", { ticket, productsNotPurchased, existNotPurchased });
   } else {
     return res.render("errors/errorPage", {
       error: "No products were purchased.",
